@@ -1,0 +1,12 @@
+spring:
+  datasource:
+  url: jdbc:h2:file:./camunda-h2-database
+  driver-class-name: org.h2.Driver
+  username: sa
+  password:
+
+camunda.bpm.admin-user:
+  id: admin
+  password: admin
+  first-name: Admin
+  last-name: Camunda
