@@ -1,3 +1,19 @@
-camunda.bpm.admin-user:
-  id: demo
-  password: demo
+spring:
+  datasource:
+    url: jdbc:h2:file:./camunda-h2-database
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+
+camunda:
+  admin-user:
+    id: demo
+    password: demo
+    first-name: demo
+    last-name: demo
+  bpm:
+    database:
+      type: h2
