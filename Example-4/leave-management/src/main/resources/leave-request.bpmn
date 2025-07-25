@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" id="Definitions_0fr9mxs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.37.0">
+  <bpmn:collaboration id="Collaboration_0qhex18">
+    <bpmn:participant id="leave-request" name="Leave Request" processRef="leave-reuqest-process" />
+  </bpmn:collaboration>
+  <bpmn:process id="leave-reuqest-process" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1kseeww">
+      <bpmn:lane id="employee" name="Employee" />
+      <bpmn:lane id="hr" name="HR" />
+      <bpmn:lane id="dm" name="DM" />
+    </bpmn:laneSet>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0qhex18">
+      <bpmndi:BPMNShape id="Participant_0poqygj_di" bpmnElement="leave-request" isHorizontal="true">
+        <dc:Bounds x="160" y="50" width="960" height="340" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1nsxicm_di" bpmnElement="employee" isHorizontal="true">
+        <dc:Bounds x="190" y="50" width="930" height="120" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1szoi9h_di" bpmnElement="hr" isHorizontal="true">
+        <dc:Bounds x="190" y="280" width="930" height="110" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0px1rg9_di" bpmnElement="dm" isHorizontal="true">
+        <dc:Bounds x="190" y="170" width="930" height="110" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
