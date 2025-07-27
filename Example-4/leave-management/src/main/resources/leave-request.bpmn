@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0fr9mxs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.37.0">
-  <bpmn:collaboration id="Collaboration_0qhex18">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0fr9mxs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.37.0">
+  <bpmn:collaboration id="camunda-bpm">
+    <bpmn:extensionElements />
     <bpmn:participant id="leave-request" name="Leave Request" processRef="leave-reuqest-process" />
   </bpmn:collaboration>
-  <bpmn:process id="leave-reuqest-process" isExecutable="true">
+  <bpmn:process id="leave-reuqest-process" name="Leave Request" isExecutable="true" camunda:jobPriority="50" camunda:historyTimeToLive="180">
     <bpmn:laneSet id="LaneSet_1kseeww">
       <bpmn:lane id="employee" name="Employee">
         <bpmn:flowNodeRef>start-event</bpmn:flowNodeRef>
@@ -24,28 +25,38 @@
     <bpmn:startEvent id="start-event" name="Start" camunda:initiator="">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="leave-type" label="Leave Type" type="string" defaultValue="null">
+          <camunda:formField id="leaveType" label="Leave Type" type="string" defaultValue="null">
             <camunda:validation />
           </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_1dw0yst</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:serviceTask id="validate-balance" name="Validate Balance" camunda:class="">
+    <bpmn:serviceTask id="validate-balance" name="Validate Balance" camunda:class="com.example.workflow.ValidateBalanceDelegate">
       <bpmn:incoming>Flow_1dw0yst</bpmn:incoming>
       <bpmn:outgoing>Flow_083im08</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="dm-task" name="DM Task" camunda:candidateGroups="DM">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="confirm" label="Confirm" type="boolean" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_083im08</bpmn:incoming>
       <bpmn:outgoing>Flow_0pj6tae</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="dm-confirm" name="DM confirm">
       <bpmn:incoming>Flow_0pj6tae</bpmn:incoming>
       <bpmn:outgoing>dm-reject</bpmn:outgoing>
-      <bpmn:outgoing>Flow_03cikbj</bpmn:outgoing>
+      <bpmn:outgoing>dm-approve</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="hr-task" name="HR Task">
-      <bpmn:incoming>Flow_03cikbj</bpmn:incoming>
+    <bpmn:userTask id="hr-task" name="HR Task" camunda:candidateGroups="HR">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="hrConfirm" label="HR Confirm" type="boolean" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>dm-approve</bpmn:incoming>
       <bpmn:outgoing>Flow_0lxtwm5</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:endEvent id="end-event-reject" name="End">
@@ -55,10 +66,10 @@
     <bpmn:exclusiveGateway id="hr-confirm" name="HR Confirm">
       <bpmn:incoming>Flow_0lxtwm5</bpmn:incoming>
       <bpmn:outgoing>hr-reject</bpmn:outgoing>
-      <bpmn:outgoing>Flow_07ctxk9</bpmn:outgoing>
+      <bpmn:outgoing>hr-approve</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="update-leave" name="Update Leave">
-      <bpmn:incoming>Flow_07ctxk9</bpmn:incoming>
+    <bpmn:serviceTask id="update-leave" name="Update Leave" camunda:class="com.example.workflow.UpdateLeaveDelegate">
+      <bpmn:incoming>hr-approve</bpmn:incoming>
       <bpmn:outgoing>Flow_0urfb8g</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:endEvent id="end-event-confirm" name="End">
@@ -67,29 +78,37 @@
     <bpmn:sequenceFlow id="Flow_1dw0yst" sourceRef="start-event" targetRef="validate-balance" />
     <bpmn:sequenceFlow id="Flow_083im08" sourceRef="validate-balance" targetRef="dm-task" />
     <bpmn:sequenceFlow id="Flow_0pj6tae" sourceRef="dm-task" targetRef="dm-confirm" />
-    <bpmn:sequenceFlow id="dm-reject" name="DM Reject" sourceRef="dm-confirm" targetRef="end-event-reject" />
-    <bpmn:sequenceFlow id="Flow_03cikbj" sourceRef="dm-confirm" targetRef="hr-task" />
+    <bpmn:sequenceFlow id="dm-reject" name="DM Rejected" sourceRef="dm-confirm" targetRef="end-event-reject">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!confirm}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="dm-approve" name="DM Approved" sourceRef="dm-confirm" targetRef="hr-task">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${confirm}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0lxtwm5" sourceRef="hr-task" targetRef="hr-confirm" />
-    <bpmn:sequenceFlow id="hr-reject" name="HR Reject" sourceRef="hr-confirm" targetRef="end-event-reject" />
-    <bpmn:sequenceFlow id="Flow_07ctxk9" sourceRef="hr-confirm" targetRef="update-leave" />
+    <bpmn:sequenceFlow id="hr-reject" name="HR Rejected" sourceRef="hr-confirm" targetRef="end-event-reject">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!hrConfirm}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="hr-approve" name="HR Approved" sourceRef="hr-confirm" targetRef="update-leave">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${hrConfirm}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0urfb8g" sourceRef="update-leave" targetRef="end-event-confirm" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0qhex18">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="camunda-bpm">
       <bpmndi:BPMNShape id="Participant_0poqygj_di" bpmnElement="leave-request" isHorizontal="true">
         <dc:Bounds x="160" y="50" width="1080" height="370" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_1nsxicm_di" bpmnElement="employee" isHorizontal="true" bioc:stroke="#5b176d" bioc:fill="#e1bee7" color:background-color="#e1bee7" color:border-color="#5b176d">
-        <dc:Bounds x="190" y="50" width="1050" height="120" />
+      <bpmndi:BPMNShape id="Lane_0px1rg9_di" bpmnElement="dm" isHorizontal="true" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="190" y="170" width="1050" height="120" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1szoi9h_di" bpmnElement="hr" isHorizontal="true" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
         <dc:Bounds x="190" y="290" width="1050" height="130" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_0px1rg9_di" bpmnElement="dm" isHorizontal="true" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
-        <dc:Bounds x="190" y="170" width="1050" height="120" />
+      <bpmndi:BPMNShape id="Lane_1nsxicm_di" bpmnElement="employee" isHorizontal="true" bioc:stroke="#5b176d" bioc:fill="#e1bee7" color:background-color="#e1bee7" color:border-color="#5b176d">
+        <dc:Bounds x="190" y="50" width="1050" height="120" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1izkmjv_di" bpmnElement="start-event" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
@@ -155,12 +174,15 @@
         <di:waypoint x="540" y="110" />
         <di:waypoint x="1082" y="110" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="772" y="93" width="53" height="14" />
+          <dc:Bounds x="548" y="153" width="64" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_03cikbj_di" bpmnElement="Flow_03cikbj">
+      <bpmndi:BPMNEdge id="Flow_03cikbj_di" bpmnElement="dm-approve">
         <di:waypoint x="540" y="255" />
         <di:waypoint x="540" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="546" y="293" width="67" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0lxtwm5_di" bpmnElement="Flow_0lxtwm5">
         <di:waypoint x="590" y="360" />
@@ -171,12 +193,15 @@
         <di:waypoint x="720" y="110" />
         <di:waypoint x="1082" y="110" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="724" y="228" width="52" height="14" />
+          <dc:Bounds x="738" y="153" width="63" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_07ctxk9_di" bpmnElement="Flow_07ctxk9">
+      <bpmndi:BPMNEdge id="Flow_07ctxk9_di" bpmnElement="hr-approve">
         <di:waypoint x="745" y="360" />
         <di:waypoint x="850" y="360" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="765" y="342" width="66" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0urfb8g_di" bpmnElement="Flow_0urfb8g">
         <di:waypoint x="950" y="360" />
