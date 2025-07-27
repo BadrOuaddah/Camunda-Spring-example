@@ -12,7 +12,7 @@ public class UpdateLeaveDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        LOGGER.info("\n\n  ... LoggerDelegate invoked by "
+        LOGGER.info("\n\n  ... Update Leave Delegate invoked by "
                 + "activtyName='" + execution.getCurrentActivityName() + "'"
                 + ", activtyId=" + execution.getCurrentActivityId()
                 + ", processDefinitionId=" + execution.getProcessDefinitionId()

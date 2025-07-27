@@ -12,7 +12,9 @@ public class ValidateBalanceDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        LOGGER.info("\n\n  ... LoggerDelegate invoked by "
+        String leaveType = (String) execution.getVariable("leaveType");
+        LOGGER.info("Leave type is >>> :" + leaveType);
+        LOGGER.info("\n\n  ... Validate Balance Delegate invoked by "
                 + "activtyName='" + execution.getCurrentActivityName() + "'"
                 + ", activtyId=" + execution.getCurrentActivityId()
                 + ", processDefinitionId=" + execution.getProcessDefinitionId()
