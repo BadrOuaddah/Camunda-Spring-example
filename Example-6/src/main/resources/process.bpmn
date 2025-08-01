@@ -14,7 +14,11 @@
       <bpmn:incoming>flow5</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:userTask id="UserTask_1" name="Approve Request" camunda:candidateUsers="demo">
-      <bpmn:extensionElements />
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="approved" label="Approved" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>flow1</bpmn:incoming>
       <bpmn:outgoing>flow2</bpmn:outgoing>
     </bpmn:userTask>
@@ -30,19 +34,24 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="flow3" sourceRef="ServiceTask_1" targetRef="Gateway_ApprovalDecision" />
     <bpmn:endEvent id="EndEvent_Rejected" name="Rejected">
-      <bpmn:incoming>flow6</bpmn:incoming>
+      <bpmn:incoming>flow7</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="flow4" sourceRef="Gateway_ApprovalDecision" targetRef="updateApproval">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved == true}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="flow6" sourceRef="Gateway_ApprovalDecision" targetRef="EndEvent_Rejected">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="updateApproval" name="Update Approval" camunda:class="com.example.workflow.delegate.UpdateApprovalDelegate">
       <bpmn:incoming>flow4</bpmn:incoming>
       <bpmn:outgoing>flow5</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="flow5" sourceRef="updateApproval" targetRef="EndEvent_Approved" />
+    <bpmn:sequenceFlow id="flow6" sourceRef="Gateway_ApprovalDecision" targetRef="rejectedDelegate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow7" sourceRef="rejectedDelegate" targetRef="EndEvent_Rejected" />
+    <bpmn:serviceTask id="rejectedDelegate" name="Rejected Delegate" camunda:class="com.example.workflow.delegate.RejectedDelegate">
+      <bpmn:incoming>flow6</bpmn:incoming>
+      <bpmn:outgoing>flow7</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="demoProcess">
@@ -77,10 +86,14 @@
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_17k1lks_di" bpmnElement="EndEvent_Rejected">
-        <dc:Bounds x="632" y="242" width="36" height="36" />
+        <dc:Bounds x="632" y="382" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="629" y="285" width="44" height="14" />
+          <dc:Bounds x="629" y="425" width="44" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0c5bbk2_di" bpmnElement="rejectedDelegate">
+        <dc:Bounds x="600" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1fp17al_di" bpmnElement="flow1">
         <di:waypoint x="215" y="117" />
@@ -101,13 +114,17 @@
           <dc:Bounds x="726" y="99" width="26" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1onj5wz_di" bpmnElement="flow6">
-        <di:waypoint x="650" y="142" />
-        <di:waypoint x="650" y="242" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1mu0xxr_di" bpmnElement="flow5">
         <di:waypoint x="890" y="117" />
         <di:waypoint x="972" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0k4juh7_di" bpmnElement="flow6">
+        <di:waypoint x="650" y="142" />
+        <di:waypoint x="650" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ekwes4_di" bpmnElement="flow7">
+        <di:waypoint x="650" y="310" />
+        <di:waypoint x="650" y="382" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
