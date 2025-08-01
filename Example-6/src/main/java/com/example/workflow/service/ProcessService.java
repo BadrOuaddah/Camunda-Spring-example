@@ -4,7 +4,6 @@ import com.example.workflow.dto.TaskDto;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -14,11 +13,13 @@ import java.util.Map;
 @Service
 public class ProcessService {
 
-    @Autowired
-    private RuntimeService runtimeService;
+    private final RuntimeService runtimeService;
+    private final TaskService taskService;
 
-    @Autowired
-    private TaskService taskService;
+    public ProcessService(RuntimeService runtimeService, TaskService taskService) {
+        this.runtimeService = runtimeService;
+        this.taskService = taskService;
+    }
 
     public String startProcess(String employeeName) {
         Map<String, Object> variables = new HashMap<>();
