@@ -8,14 +8,9 @@ import org.springframework.stereotype.Component;
 public class UpdateApprovalDelegate implements JavaDelegate {
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
-        String employeeName = (String) execution.getVariable("employeeName");
-        Boolean approved = (Boolean) execution.getVariable("approved");
-
-        System.out.println("Service Task updated is executing...");
-        System.out.println("Employee Name: " + employeeName);
-        System.out.println("Approved: " + approved);
-        System.out.println("Service Task updated is ending...");
+    public void execute(DelegateExecution execution) {
+        String name = (String) execution.getVariable("employeeName");
+        System.out.println("✅ Approved: " + name);
     }
 
 }
