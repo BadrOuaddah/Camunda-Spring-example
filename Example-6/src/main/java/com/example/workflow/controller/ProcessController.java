@@ -15,6 +15,10 @@ public class ProcessController {
     @Autowired
     private ProcessService processService;
 
+    public ProcessController(ProcessService processService) {
+        this.processService = processService;
+    }
+
     @PostMapping("/start")
     public ResponseEntity<String> startProcess(@RequestParam("employeeName") String employeeName) {
         String processId = processService.startProcess(employeeName);
@@ -26,8 +30,8 @@ public class ProcessController {
         return processService.getPendingTasks();
     }
 
-    @PostMapping("/complete")
-    public ResponseEntity<String> completeTask(@RequestParam("taskId") String taskId,
+    @PostMapping("/tasks/{taskId}/complete")
+    public ResponseEntity<String> completeTask(@PathVariable("taskId") String taskId,
                                                @RequestParam("approved") boolean approved) {
         processService.completeTask(taskId, approved);
         return ResponseEntity.ok("Task completed.");
